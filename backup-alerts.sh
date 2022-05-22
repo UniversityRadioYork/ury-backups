@@ -3,7 +3,11 @@
 # URY Backup Alerting Script
 # Author: Michael Grace <michael.grace@ury.org.uk>
 
-[[ $BACKUP_ALERT_SLACK_HOOK == "" ]] && echo >&2 "BACKUP_ALERT_SLACK_HOOK not set"
+set -eo pipefail
+
+[[ $BACKUP_ALERT_SLACK_HOOK == "" ]] && { echo >&2 "BACKUP_ALERT_SLACK_HOOK not set"; exit 1; }
+
+set -u
 
 BACKUP_SERVER=$(hostname)
 case $BACKUP_SERVER in
@@ -31,10 +35,10 @@ tmp_file=/tmp/$(date +'%s').backupalert
 alerts_started=0
 
 alert () {
-    [[ alerts_started -eq 0 ]] && { echo "$BACKUP_SERVER Backup Alert" > tmp_file; alerts_started=1; }
+    [[ alerts_started -eq 0 ]] && { echo "$BACKUP_SERVER Backup Alert" > $tmp_file; alerts_started=1; }
 
     local message=$1
-    echo $message >> tmp_file
+    echo $message >> $tmp_file
 }
 
 daily_snapshot_exist () {
@@ -45,8 +49,8 @@ daily_snapshot_exist () {
 
 yesterday=$(date -d yesterday +'%Y-%m-%d')
 
-for dataset in ($musicstore $filestore $database $server_backup); do
-    [[ daily_snapshot_exist $dataset $yesterday == "" ]] && alert "$dataset missing daily snapshot"
+for dataset in $musicstore $filestore $database $server_backup; do
+        [[ $(daily_snapshot_exist $dataset $yesterday) == "" ]] && alert "$dataset missing daily snapshot"
 done
 
 while read pool && read state; do
@@ -54,11 +58,12 @@ while read pool && read state; do
 done < <(zpool status | grep 'pool:\|state:')
 
 while read line; do
-    local percent=$(echo $line | cut -d '%' -f 1)
-    local mnt=$(echo $line | cut -d ' ' -f 2)
+    percent=$(echo $line | cut -d '%' -f 1)
+    mnt=$(echo $line | cut -d ' ' -f 2)
     [[ $percent -ge 90 ]] && alert "$mnt at $percent%"
 done < <(df | tail +2 | tr -s ' ' | cut -d ' ' -f 5,6)
 
-[[ $(find "/$server_backup" -mtime -1 | wc -l) -eq 0 ]] && alert "No backup data on $server_backup"
+check_server="urysteve/root"
+[[ $(find "/$server_backup/$check_server" -mtime -1 | head -1) == "" ]] && alert "No backup data on $server_backup (checked $check_server)"
 
-[[ -f tmp_file ]] && curl -X POST --data-urlencode "payload={\"text\": \"$(cat $tmp_file)\"}" $BACKUP_ALERT_SLACK_HOOK
+[[ -f $tmp_file ]] && curl -X POST --data-urlencode "payload={\"text\": \"$(cat $tmp_file)\"}" $BACKUP_ALERT_SLACK_HOOK
