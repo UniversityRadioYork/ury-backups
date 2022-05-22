@@ -1,0 +1,5 @@
+# SANOID - snapshotting pool0 and pruning pool1/music snapshots - HOURLY
+    0       *       *       *       *       root    "/root/run-sanoid.sh" > /dev/null 2>&1
+
+# RSYNCS - copies data from servers to pool0 - DAILY
+20      4       *       *       *       root    "/pool0/backup/rsync-daily.new.sh" > /dev/null 2>&1

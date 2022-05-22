@@ -1,0 +1,8 @@
+# thses are from different places hence added user in first one
+# sanoid runs from systemd
+
+# this is from /etc/crontab
+20 4 * * * root hc-run.sh 20d156cb-eae7-4999-a662-3eae9ca0ceb2 /usr/local/bin/backup_dbs.sh
+
+# this is from root's crontab
+10 * * * * /usr/local/sbin/backups-hourly.sh
