@@ -9,6 +9,7 @@ set -eo pipefail
 
 set -u
 
+# we love how `date` is different on BSD and Linux :o
 BACKUP_SERVER=$(hostname)
 case $BACKUP_SERVER in
     "urybackup0")
@@ -16,6 +17,7 @@ case $BACKUP_SERVER in
         filestore="pool1"
         database="pool0/backup/db"
         server_backup="pool0/backup"
+        yesterday=$(date -r $(($(date +'%s') - 86400)) +'%Y-%m-%d')
         ;;
 
     "moyles")
@@ -23,6 +25,7 @@ case $BACKUP_SERVER in
         filestore="pool0/pool1"
         database="pool0/db"
         server_backup="pool0/backup"
+        yesterday=$(date -d yesterday +'%Y-%m-%d')
         ;;
 
     *)
@@ -47,7 +50,6 @@ daily_snapshot_exist () {
     zfs list -t snapshot | grep "${dataset}@autosnap_${date}_.*_daily"
 }
 
-yesterday=$(date -d yesterday +'%Y-%m-%d')
 
 for dataset in $musicstore $filestore $database $server_backup; do
         [[ $(daily_snapshot_exist $dataset $yesterday) == "" ]] && alert "$dataset missing daily snapshot"
