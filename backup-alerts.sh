@@ -41,7 +41,7 @@ alert () {
     [[ alerts_started -eq 0 ]] && { echo "$BACKUP_SERVER Backup Alert" > $tmp_file; alerts_started=1; }
 
     local message=$1
-    echo $message >> $tmp_file
+    echo "- $message" >> $tmp_file
 }
 
 daily_snapshot_exist () {
@@ -63,9 +63,12 @@ while read line; do
     percent=$(echo $line | cut -d '%' -f 1)
     mnt=$(echo $line | cut -d ' ' -f 2)
     [[ $percent -ge 90 ]] && alert "$mnt at $percent%"
-done < <(df | tail +2 | tr -s ' ' | cut -d ' ' -f 5,6)
+done < <(df | tail +2 | tr -s ' ' | cut -d ' ' -f 5,6 | grep -v '/dev')
 
 check_server="urysteve/root"
 [[ $(find "/$server_backup/$check_server" -mtime -1 | head -1) == "" ]] && alert "No backup data on $server_backup (checked $check_server)"
+[[ $(find "/$database" -mtime -1 | head -1) == "" ]] && alert "No new database files"
 
 [[ -f $tmp_file ]] && curl -X POST --data-urlencode "payload={\"text\": \"$(cat $tmp_file)\"}" $BACKUP_ALERT_SLACK_HOOK
+
+rm $tmp_file 2>/dev/null    
