@@ -1,2 +1,2 @@
 # sanoid is run from systemd
-0       2       *       *       *       root    "BACKUP_ALERT_SLACK_HOOK=abc /opt/ury-backups/backup-alerts.sh" > /dev/null 2>&1 
+0       8       *       *       *       root    "BACKUP_ALERT_SLACK_HOOK=abc /opt/ury-backups/backup-alerts.sh" > /dev/null 2>&1 

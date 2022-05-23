@@ -4,4 +4,4 @@
 # RSYNCS - copies data from servers to pool0 - DAILY
 0      23       *       *       *       root    "/pool0/backup/rsync-daily.new.sh" > /dev/null 2>&1
 
-0       2       *       *       *       root    "BACKUP_ALERT_SLACK_HOOK=abc /opt/ury-backups/backup-alerts.sh" > /dev/null 2>&1 
+0       8       *       *       *       root    "BACKUP_ALERT_SLACK_HOOK=abc /opt/ury-backups/backup-alerts.sh" > /dev/null 2>&1 
