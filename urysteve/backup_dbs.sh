@@ -19,9 +19,13 @@ for server in "urybackup0.york.ac.uk" "moyles.ury.york.ac.uk"; do
  else
         remote_path=/pool0/backup/db
  fi
-
+ 
+ set +e
  ping -c 1 $server > /dev/null 2>&1
- if [[ $? -eq 0 ]]; then
+ ping_ok=$?
+ set -e
+ 
+ if [[ $ping_ok -eq 0 ]]; then
         echo $(date): transferring to $server
         rsync -ah --stats --delete --delete-delay --delete-excluded $LOCAL_BACKUP_PATH/* $server:$remote_path
         echo $(date): transfer to $server done
