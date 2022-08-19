@@ -6,3 +6,6 @@
 
 # this is from root's crontab
 10 * * * * /usr/local/sbin/backups-hourly.sh
+
+# Prune Webcam Footage
+20      4       *       *       *       root    find /filestore/Webcams -mtime +90 -delete
