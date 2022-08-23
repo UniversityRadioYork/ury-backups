@@ -21,7 +21,7 @@ for server in "urybackup0.york.ac.uk" "moyles.ury.york.ac.uk"; do
  fi
  
  set +e
- ping -c 1 $server > /dev/null 2>&1
+ nc -vz $server 22 > /dev/null 2>&1
  ping_ok=$?
  set -e
  
