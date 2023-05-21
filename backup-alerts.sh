@@ -49,6 +49,10 @@ daily_snapshot_exist () {
     zfs list -t snapshot | grep "${dataset}@autosnap_${date}_.*_daily"
 }
 
+weekly_running_check () {
+    [[ -f $tmp_file ]] || return
+    [[ $(date +'%w') == 3 ]] && alert "No problems, just to say, I'm still checking for you :)"
+}
 
 for dataset in $musicstore $filestore $database $server_backup; do
         [[ $(daily_snapshot_exist $dataset $yesterday) == "" ]] && alert "$dataset missing daily snapshot"
@@ -68,6 +72,7 @@ check_server="urysteve/root"
 [[ $(find "/$server_backup/$check_server" -mtime -1 | head -1) == "" ]] && alert "No backup data on $server_backup (checked $check_server)"
 [[ $(find "/$database" -mtime -1 | head -1) == "" ]] && alert "No new database files"
 
+weekly_running_check
 [[ -f $tmp_file ]] && curl -X POST --data-urlencode "payload={\"text\": \"$(cat $tmp_file)\"}" $BACKUP_ALERT_SLACK_HOOK
 
 rm $tmp_file 2>/dev/null    
