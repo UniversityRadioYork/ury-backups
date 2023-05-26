@@ -46,7 +46,7 @@ while read server; do
         else
                 log $server_name established connection - starting rsync
                 # Rsync Command
-                (rsync -ah --stats --delete --delete-delay --delete-excluded --exclude-from=$EXCLUDE_FILE --exclude-from=$BACKUP_ROOT/exclusions/$server_name $server:/ $BACKUP_ROOT/$server_name && log $server_name rsync complete) &
+                (rsync -ah --stats --delete --delete-delay --delete-excluded --exclude-from=$EXCLUDE_FILE --exclude-from=/opt/ury-backups/rsync/exclusions/$server_name $server:/ $BACKUP_ROOT/$server_name && log $server_name rsync complete) &
         fi
 done < $SERVER_LIST
 wait
