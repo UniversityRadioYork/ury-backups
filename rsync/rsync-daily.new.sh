@@ -15,9 +15,24 @@ log () {
         echo -e $(date) '\t' $1 '\t' ${@:2}
 }
 
-BACKUP_ROOT=/pool0/backup
-EXCLUDE_FILE=$BACKUP_ROOT/urybackup-exclude.new.conf
-SERVER_LIST=$BACKUP_ROOT/servers
+case $(hostname) in
+        "stratford")
+                BACKUP_ROOT="/backup/servers"
+                ;;
+
+        "moyles")
+                BACKUP_ROOT="/pool0/backup"
+                ;;
+
+        *)
+                echo >&2 "this isn't running on stratford or moyles"
+                exit 1
+                ;;
+esac
+
+
+EXCLUDE_FILE=/opt/ury-backups/rsync/urybackup-exclude.new.conf
+SERVER_LIST=/opt/ury-backups/rsync/servers
 
 log root Backups Started
 while read server; do
