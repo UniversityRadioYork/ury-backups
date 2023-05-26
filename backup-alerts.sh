@@ -50,7 +50,7 @@ daily_snapshot_exist () {
 }
 
 weekly_running_check () {
-    [[ $(date +'%w') == 3 -a ! -f $tmp_file ]] && alert "No problems, just to say, I'm still checking for you :)"
+    [[ $(date +'%w') == 3 ]] && [[ alerts_stated -eq 0 ]] && alert "No problems, just to say, I'm still checking for you :)"
     return 0
 }
 
