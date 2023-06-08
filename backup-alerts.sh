@@ -50,8 +50,15 @@ daily_snapshot_exist () {
 }
 
 weekly_running_check () {
-    [[ $(date +'%w') == 3 ]] && [[ alerts_stated -eq 0 ]] && alert "No problems, just to say, I'm still checking for you :)"
-    return 0
+    if [[ $(date +'%w') == 3 ]]; then
+        return 0;
+    fi
+    
+    if [[ alerts_stated -eq 0 ]]; then
+        return 0;
+    fi
+    
+    alert "No problems, just to say, I'm still checking for you :)"
 }
 
 for dataset in $musicstore $filestore $database $server_backup; do
