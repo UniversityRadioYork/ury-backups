@@ -50,11 +50,11 @@ daily_snapshot_exist () {
 }
 
 weekly_running_check () {
-    if [[ $(date +'%w') == 3 ]]; then
+    if [[ $(date +'%w') != 3 ]]; then
         return 0;
     fi
     
-    if [[ alerts_stated -eq 0 ]]; then
+    if [[ alerts_started -eq 1 ]]; then
         return 0;
     fi
     
