@@ -1,0 +1,2 @@
+# Move the webcam footage over to the filestore
+0       */6     *       *       *       root    /home/motion/movempg.sh

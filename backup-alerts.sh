@@ -9,15 +9,13 @@ set -eo pipefail
 
 set -u
 
-# we love how `date` is different on BSD and Linux :o
 BACKUP_SERVER=$(hostname)
 case $BACKUP_SERVER in
-    "urybackup0")
-        musicstore="music"
-        filestore="pool1"
-        database="pool0/backup/db"
-        server_backup="pool0/backup"
-        yesterday=$(date -r $(($(date +'%s') - 86400)) +'%Y-%m-%d')
+    "stratford")
+        musicstore="musicstore"
+        filestore="filestore"
+        database="backup/db"
+        server_backup="backup/servers"
         ;;
 
     "moyles")
@@ -25,14 +23,15 @@ case $BACKUP_SERVER in
         filestore="pool0/pool1"
         database="pool0/db"
         server_backup="pool0/backup"
-        yesterday=$(date -d yesterday +'%Y-%m-%d')
         ;;
 
     *)
-        echo >&2 "this isn't running on bup0 or moyles"
+        echo >&2 "this isn't running on stratford or moyles"
         exit 1
         ;;
 esac
+
+yesterday=$(date -d yesterday +'%Y-%m-%d')
 
 tmp_file=/tmp/$(date +'%s').backupalert
 alerts_started=0
@@ -50,6 +49,17 @@ daily_snapshot_exist () {
     zfs list -t snapshot | grep "${dataset}@autosnap_${date}_.*_daily"
 }
 
+weekly_running_check () {
+    if [[ $(date +'%w') != 3 ]]; then
+        return 0;
+    fi
+    
+    if [[ alerts_started -eq 1 ]]; then
+        return 0;
+    fi
+    
+    alert "No problems, just to say, I'm still checking for you :)"
+}
 
 for dataset in $musicstore $filestore $database $server_backup; do
         [[ $(daily_snapshot_exist $dataset $yesterday) == "" ]] && alert "$dataset missing daily snapshot"
@@ -69,6 +79,7 @@ check_server="urysteve/root"
 [[ $(find "/$server_backup/$check_server" -mtime -1 | head -1) == "" ]] && alert "No backup data on $server_backup (checked $check_server)"
 [[ $(find "/$database" -mtime -1 | head -1) == "" ]] && alert "No new database files"
 
+weekly_running_check
 [[ -f $tmp_file ]] && curl -X POST --data-urlencode "payload={\"text\": \"$(cat $tmp_file)\"}" $BACKUP_ALERT_SLACK_HOOK
 
 rm $tmp_file 2>/dev/null    

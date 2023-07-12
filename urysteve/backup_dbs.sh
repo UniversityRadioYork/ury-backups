@@ -12,16 +12,20 @@ for db in ${PG_DATABASES[@]}; do
  (export PGPASSWORD="$PG_PASSWORD" && /usr/bin/pg_dump -U "$PG_USERNAME" -F custom -f "$LOCAL_BACKUP_PATH/$db.sql.dump" "$db")
 done
 
-for server in "urybackup0.york.ac.uk" "moyles.ury.york.ac.uk"; do
+for server in "stratford.ury.york.ac.uk" "moyles.ury.york.ac.uk"; do
  # i hate this
  if [[ $server == "moyles.ury.york.ac.uk" ]]; then
         remote_path=/pool0/db
  else
-        remote_path=/pool0/backup/db
+        remote_path=/backup/db
  fi
-
- ping -c 1 $server > /dev/null 2>&1
- if [[ $? -eq 0 ]]; then
+ 
+ set +e
+ nc -vz $server 22 > /dev/null 2>&1
+ ping_ok=$?
+ set -e
+ 
+ if [[ $ping_ok -eq 0 ]]; then
         echo $(date): transferring to $server
         rsync -ah --stats --delete --delete-delay --delete-excluded $LOCAL_BACKUP_PATH/* $server:$remote_path
         echo $(date): transfer to $server done
