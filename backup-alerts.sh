@@ -58,7 +58,7 @@ weekly_running_check () {
         return 0;
     fi
     
-    alert "No problems, just to say, I'm still checking for you :)"
+    alert "All good, just to say, I'm still checking for you :)"
 }
 
 for dataset in $musicstore $filestore $database $server_backup; do
