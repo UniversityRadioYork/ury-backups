@@ -5,11 +5,6 @@
 - `backups-hourly.sh` - runs hourly, sends all the `filestore` and `musicstore` snapshots to `stratford` and `moyles`
 - `sanoid` runs to snapshot the `filestore` and `musicstore`
 
-## `urybackup0` (on-site backup server)
-## RIP
-- `sanoid` runs to prune old `filestore`/`musicstore` snapshots, and to snapshot `pool0`
-- `rsync-daily.new.sh` runs to backup all the other servers we have, i.e. home directories. these are backed up to `pool0`
-
 ## `stratford` (on-site backup server)
 - `sanoid` runs to prune old `filestore`/`musicstore` snapshots, and to snapshot `backup/servers`
 TODO:
@@ -33,3 +28,7 @@ TODO - add `rsync-daily.new.sh` to get moyles backups to be independent of on si
 - mailbox backups - other than just the `ury` server backup
 - external monitoring of `backup-alerts.sh` script actually running
 
+## [DEPRECATED]`urybackup0` (old on-site backup server)
+## This is an achived section - no longer in use
+- `sanoid` runs to prune old `filestore`/`musicstore` snapshots, and to snapshot `pool0`
+- `rsync-daily.new.sh` runs to backup all the other servers we have, i.e. home directories. these are backed up to `pool0`
